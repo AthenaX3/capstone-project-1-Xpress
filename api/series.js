@@ -5,7 +5,7 @@ const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite'
 const issuesRouter = require('./issues.js');
 
 
-seriesRouter.use('/', issuesRouter);
+//seriesRouter.use('/', issuesRouter);
 
 seriesRouter.param('seriesId', (req, res, next, seriesId) => {
   db.get(`SELECT * FROM Series WHERE Series.ID = $seriesId`, {$seriesId: seriesId}, (err, series) => {
@@ -77,12 +77,14 @@ seriesRouter.put('/:seriesId', (req, res, next) => {
 
 seriesRouter.delete('/:seriesId', (req, res, next) => {
     const seriesId = req.params.seriesId;
-    db.run(`SELECT * FROM Issue WHERE Issue.series_id = $seriesId`, {$seriesId: seriesId}, (error) => {
+    db.run(`SELECT * FROM Issue WHERE Issue.series_id = $seriesId`, {$seriesId: seriesId}, (error, issue) => {
       if(error){
         res.sendStatus(400);
         next(error);
+      }else if(issue){
+        res.sendStatus(400);
       } else {
-        db.run(`DELETE FROM Issue WHERE Issue.series_id = $seriesId`, {$seriesId: seriesId}, (error) => {
+        db.run(`DELETE FROM Series WHERE Series.id = $seriesId`, {$seriesId: seriesId}, (error) => {
           res.sendStatus(204);
         });
       }
